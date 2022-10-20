@@ -25,6 +25,9 @@ struct Args {
     /// Path to config file specifying background tasks
     #[arg(short, long, default_value = "./meanwhile.toml")]
     meanwhile_file: PathBuf,
+    /// How long to sleep in seconds after starting the background tasks
+    #[arg(short, long, default_value_t = 1.0)]
+    sleep_after_spawn: f64,
     /// The prefix to give to all output files
     #[arg(short, long)]
     name: Option<String>,
@@ -107,6 +110,11 @@ fn main() -> anyhow::Result<()> {
     let cmd = cmd_and_args.remove(0);
     let cmd_args = cmd_and_args;
 
+    info!(
+        seconds = args.sleep_after_spawn,
+        "waiting before running main task"
+    );
+    thread::sleep(Duration::from_secs_f64(args.sleep_after_spawn));
     info!(%cmd, ?cmd_args, "running main task");
     // todo: handle ctrl+c, and still collect outputs
     let output = process::Command::new(&cmd)
